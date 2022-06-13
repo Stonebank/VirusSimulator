@@ -20,12 +20,10 @@ public class BoidRunner extends JPanel implements KeyListener, MouseListener, Mo
 
     private boolean clearGrid;
 
-    private SoundManager music;
-
     public static final int WIDTH = 600;
     public static final int HEIGHT = 800;
 
-    public static final int BOID_COUNT = 1200;
+    public static final int BOID_COUNT = 100;
 
     public static int totalInfected = 1, deathCount = 0, healthyCount = 0, criticalCount = 0,
             aliveCount, recoveryCount = 0, visiblyDead = 0, diagnosedCount = 0, paramedicCount = 0, paranoidCount = 0;
@@ -49,7 +47,7 @@ public class BoidRunner extends JPanel implements KeyListener, MouseListener, Mo
         for (int i = 0; i < BOID_COUNT; i++)
             flock.add(new Boid());
 
-        music = new SoundManager("plague");
+        SoundManager music = new SoundManager("plague");
 
     }
 
@@ -171,8 +169,6 @@ public class BoidRunner extends JPanel implements KeyListener, MouseListener, Mo
             }
 
             updateValues();
-            for (int i = 0; i < toAdd; i++)
-                flock.add(new Boid());
 
             int more = (int) (Math.random() * ((flock.size() >= 900) ? 1000 : 500));
             if (more == 0)
@@ -183,7 +179,7 @@ public class BoidRunner extends JPanel implements KeyListener, MouseListener, Mo
                 addedBoid = false;
             }
 
-            repaint();
+            this.repaint();
 
             try {
                 Thread.sleep(10);
@@ -232,15 +228,15 @@ public class BoidRunner extends JPanel implements KeyListener, MouseListener, Mo
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g = (Graphics2D) graphics;
+    public void paintComponent(Graphics page) {
+        super.paintComponent(page);
+        Graphics2D g = (Graphics2D) page;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        for (Boid boid : flock)
+        for(Boid boid: flock) {
             boid.draw(g);
-
+        }
     }
+
 
     @Override
     public void keyTyped(KeyEvent e) {
