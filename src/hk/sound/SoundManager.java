@@ -3,17 +3,16 @@ package hk.sound;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SoundManager extends JFrame {
 
+    public static boolean TICKED_OFF;
+
     private Clip clip;
 
-    public static boolean TICKEDOFF;
-
     public SoundManager(String fileName) {
-        if (!TICKEDOFF) {
+        if (!TICKED_OFF) {
 
             try {
 
