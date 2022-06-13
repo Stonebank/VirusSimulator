@@ -1,4 +1,4 @@
-package hk;
+package hk.Boid;
 
 import hk.math.Vector;
 import hk.sound.SoundManager;
@@ -26,8 +26,11 @@ public class Boid {
 
     public static final Path2D SHAPE = new Path2D.Double();
 
-    public static final Color RECOVERED = new Color(101, 194, 255), DEAD = new Color(154, 74, 178),
-            HEALTHY = Color.WHITE, INFECTED = Color.RED, PARANOID = new Color(174, 243, 177);
+    public static final Color RECOVERED = new Color(101, 194, 255);
+    public static final Color DEAD = new Color(154, 74, 178);
+    public static final Color HEALTHY = Color.WHITE;
+    public static final Color INFECTED = Color.RED;
+    public static final Color PARANOID = new Color(174, 243, 177);
 
     public static int TRAVEL_TIME;
     public static int PATIENT_BLINK;
@@ -38,6 +41,8 @@ public class Boid {
 
     public static double SEPARATION_MAX_SPEED = MAX_SPEED;
     public static double SEPARATION_MAX_FORCE = MAX_FORCE;
+
+    public static Color DIAGNOSED = new Color(134, 0, 0);;
 
     public static Boid PATIENT;
 
@@ -50,16 +55,22 @@ public class Boid {
         SHAPE.closePath();
     }
 
+    public Color paramedic = Color.BLUE;
+    public Color healthStatus = HEALTHY;
+
+    public int siren;
+    public int sirenCount;
+
+    public boolean dead;
+    public boolean hasDisease;
+    public boolean isParamedic;
+
     private Vector position;
     private Vector velocity;
     private Vector acceleration;
 
     private boolean diagnosed;
-    private boolean hasDisease;
     private boolean isImmune;
-    private boolean isParamedic;
-
-    private boolean dead;
 
     private double immunity = Math.random() * 10 + 5;
     private double immunityCap = immunity;
@@ -71,16 +82,9 @@ public class Boid {
 
     private double healTime = initialImmunity;
 
-    private int siren;
-    private int sirenCount;
-
     private double deathAngle;
 
     private double patientDistance;
-
-    private Color healthStatus = HEALTHY;
-    private final Color paramedic = Color.BLUE;
-    private Color diagnosed_color = new Color(134, 0, 0);
 
     public Boid() {
 
@@ -202,9 +206,9 @@ public class Boid {
         }
 
         if (!isParamedic || !LOCKED_ON) {
-            for (int i = 0; i < flock.size(); i++) {
-                if (isParamedic && flock.get(i).diagnosed) {
-                    PATIENT = flock.get(i);
+            for (Boid boid : flock) {
+                if (isParamedic && boid.diagnosed) {
+                    PATIENT = boid;
                     LOCKED_ON = true;
                     if (SOUND == null) {
                         switch ((int) (Math.random() * 3)) {
@@ -214,19 +218,19 @@ public class Boid {
                         }
                     }
                 }
-                double distance = distance(position.getX(), position.getY(), flock.get(i).position.getX(), flock.get(i).position.getY());
-                if (flock.get(i) != this && distance < perceptionRadius) {
-                    if (!diagnosed && flock.get(i).isParamedic) {
-                        steering.add(flock.get(i).velocity);
+                double distance = distance(position.getX(), position.getY(), boid.position.getX(), boid.position.getY());
+                if (boid != this && distance < perceptionRadius) {
+                    if (!diagnosed && boid.isParamedic) {
+                        steering.add(boid.velocity);
                         total++;
                     }
-                    if (hasDisease && !flock.get(i).hasDisease && (!isImmune || flock.get(i).dead)) {
-                        if (flock.get(i).immunity <= 0) {
-                            if (flock.get(i).healthStatus == PARANOID)
+                    if (hasDisease && !boid.hasDisease && (!isImmune || boid.dead)) {
+                        if (boid.immunity <= 0) {
+                            if (boid.healthStatus == PARANOID)
                                 new SoundManager("paranoiaEnded");
-                            flock.get(i).healthStatus = INFECTED;
+                            boid.healthStatus = INFECTED;
                             new SoundManager("newpatient");
-                            flock.get(i).hasDisease = true;
+                            boid.hasDisease = true;
                             if (isParamedic) {
                                 isParamedic = false;
                                 new SoundManager("bell");
@@ -234,19 +238,19 @@ public class Boid {
                         }
                     } else {
                         if ((int) (Math.random() * 40000) == 0 && !diagnosed && !dead) {
-                            healthStatus = diagnosed_color;
+                            healthStatus = DIAGNOSED;
                             diagnosed = true;
                             new SoundManager("diagnosis");
                         }
-                        flock.get(i).immunity -= (1/distance)*((BoidRunner.totalInfected > 35) ? 1 : ((BoidRunner.totalInfected > 11)
-                                ? 2.5 : ((BoidRunner.totalInfected < 5) ? (BoidRunner.totalInfected < 2 ? 5: 4) : 3.5)));
+                        boid.immunity -= (1 / distance) * ((BoidRunner.totalInfected > 35) ? 1 : ((BoidRunner.totalInfected > 11)
+                                ? 2.5 : ((BoidRunner.totalInfected < 5) ? (BoidRunner.totalInfected < 2 ? 5 : 4) : 3.5)));
                     }
-                } else if (!hasDisease && !flock.get(i).hasDisease && flock.get(i).immunity < flock.get(i).immunityCap && !flock.get(i).isImmune) {
-                    flock.get(i).immunity += (Math.random() * 5 + 1) / ((BoidRunner.totalInfected > 35) ? 10000 : 100);
-                    if (flock.get(i).immunity > flock.get(i).immunityCap)
-                        flock.get(i).immunity = flock.get(i).immunityCap;
+                } else if (!hasDisease && !boid.hasDisease && boid.immunity < boid.immunityCap && !boid.isImmune) {
+                    boid.immunity += (Math.random() * 5 + 1) / ((BoidRunner.totalInfected > 35) ? 10000 : 100);
+                    if (boid.immunity > boid.immunityCap)
+                        boid.immunity = boid.immunityCap;
                 }
-                if (flock.get(i).isParamedic && diagnosed && distance < 5) {
+                if (boid.isParamedic && diagnosed && distance < 5) {
                     healTime--;
                     if (healTime <= 0) {
                         hasDisease = false;
@@ -358,7 +362,7 @@ public class Boid {
         return steering;
     }
 
-    private void update() {
+    public void update() {
         if (!dead) {
             if (isParamedic && LOCKED_ON && patientDistance >= 10) {
                 if ((int) (Math.random() * BoidRunner.paramedicCount) == 0)
@@ -385,11 +389,11 @@ public class Boid {
                     PATIENT_BLINK++;
 
                     switch (PATIENT_BLINK) {
-                        case 0 -> diagnosed_color = new Color(252, 52, 52);
-                        case 1 -> diagnosed_color = new Color(134, 0, 0);
+                        case 0 -> DIAGNOSED = new Color(252, 52, 52);
+                        case 1 -> DIAGNOSED = new Color(134, 0, 0);
                     }
 
-                    PATIENT.healthStatus = diagnosed_color;
+                    PATIENT.healthStatus = DIAGNOSED;
 
                     if (PATIENT_BLINK > 1)
                         PATIENT_BLINK = -1;
@@ -410,7 +414,7 @@ public class Boid {
         }
     }
 
-    private void flock(ArrayList<Boid> flock) {
+   public void flock(ArrayList<Boid> flock) {
         boolean emergencyWork = false;
         if (isParamedic && LOCKED_ON)
             emergencyWork = true;
