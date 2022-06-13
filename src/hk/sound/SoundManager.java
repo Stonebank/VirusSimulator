@@ -11,15 +11,6 @@ public class SoundManager extends JFrame {
 
     private Clip clip;
 
-    public static void main(String[] args) {
-        SoundManager sound = null;
-        long start = System.currentTimeMillis();
-        while (true) {
-            if (sound == null)
-                sound = new SoundManager("plague");
-        }
-    }
-
     public SoundManager(String fileName) {
         if (!TICKED_OFF) {
 
