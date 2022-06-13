@@ -11,12 +11,21 @@ public class SoundManager extends JFrame {
 
     private Clip clip;
 
+    public static void main(String[] args) {
+        SoundManager sound = null;
+        long start = System.currentTimeMillis();
+        while (true) {
+            if (sound == null)
+                sound = new SoundManager("plague");
+        }
+    }
+
     public SoundManager(String fileName) {
         if (!TICKED_OFF) {
 
             try {
 
-                var url = new URL("./resources" + fileName + ".wav");
+                var url = new URL("file:./resources/" + fileName + ".wav");
                 var audio = AudioSystem.getAudioInputStream(url);
 
                 clip = AudioSystem.getClip();
