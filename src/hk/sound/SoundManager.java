@@ -28,7 +28,7 @@ public class SoundManager extends JFrame {
                     floatControl.setValue(db);
                 }
                 clip.start();
-                clip.loop((fileName.equalsIgnoreCase("plaque.wav") || fileName.equalsIgnoreCase("ambulance.wav") || fileName.startsWith("ambulance")) ? 4 : 0);
+                clip.loop((fileName.equalsIgnoreCase("plaque.wav") || fileName.equalsIgnoreCase("ambience.wav") || fileName.startsWith("ambulance")) ? 4 : 0);
 
             } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
                 System.err.println("ERROR! Something went wrong with the sound file: " + fileName + ": " + e);
